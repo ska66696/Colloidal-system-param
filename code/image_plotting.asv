@@ -1,0 +1,95 @@
+function image_plotting(param,param_name, parts_new_cur, vertex_coord_cur, experiment, frame, path)
+%% Settings
+
+% Size of  picture [width height]
+range  = [max(parts_new_cur(:, 1))+10 max(parts_new_cur(:, 2))+10]; 
+
+% Colormap
+cm = floor(colormap(jet(256)).*256);
+cm2 = floor(colormap(jet(128)).*256);
+close
+% Choose plot type:
+% 1 - cells
+% 2 - dots on gray background
+% 3 - dots in cells
+plotType = 1;
+
+% Settings struct for picture
+plotSettings.plotType = plotType;
+plotSettings.background = 10; % Color of background
+plotSettings.dotsSize = 0.8;%0.8
+plotSettings.imageScale = 1;%2
+
+% Save settings to every type
+plotSettingsDens = plotSettings;
+plotSettingsVert = plotSettings;
+plotSettingsPsi = plotSettings;
+plotSettingsRg = plotSettings;
+plotSettingsAngle = plotSettings;
+plotSettingsClust = plotSettings;
+% Set local settings
+% plotSettingsDens.imageScale = 1;
+% Color of polygons
+plotSettingsDens.cells = 'black'; 
+plotSettingsVert.cells = 'black';
+plotSettingsPsi.cells = 'black';
+plotSettingsRg.cells = 'black';
+plotSettingsAngle.cells = 'black';
+plotSettingsClust.cells = 'black';
+
+% Colormap
+plotSettingsDens.ColorMap = (cm);
+plotSettingsVert.ColorMap = (cm);
+plotSettingsPsi.ColorMap = flip(cm);
+plotSettingsRg.ColorMap = flip(cm);
+plotSettingsAngle.ColorMap = [flip(cm2);cm2];
+plotSettingsClust.ColorMap =  [flip(cm2);cm2];
+
+% Color axis
+plotSettingsDens.ColorAxis = [0.2 4.2]*10^-3;
+plotSettingsVert.ColorAxis = [3 8];
+plotSettingsPsi.ColorAxis = [0 1];%%change param after test!!!![0 1]
+plotSettingsRg.ColorAxis = [0 1];
+plotSettingsAngle.ColorAxis = [0 60];
+plotSettingsClust.ColorAxis = [0 60];
+
+range = ceil(range*plotSettings.imageScale);
+
+%% Plotting
+
+if param_name == "psi6"
+
+    I = plot_voronoi(param, parts_new_cur, vertex_coord_cur, range, plotSettingsPsi);
+    save_figure(I, param_name, experiment, frame, path)
+
+end
+
+if param_name == "angle"
+
+    I = plot_voronoi(param, parts_new_cur, vertex_coord_cur, range, plotSettingsAngle);
+    save_figure(I, param_name, experiment, frame, path)
+end
+
+if param_name == "density"
+
+    I = plot_voronoi(param, parts_new_cur, vertex_coord_cur, range, plotSettingsDens);
+    save_figure(I, param_name, experiment, frame, path)
+end
+
+if param_name == "number"
+
+    I = plot_voronoi(param, parts_new_cur, vertex_coord_cur, range, plotSettingsVert);
+    save_figure(I, param_name, experiment, frame, path)
+end
+
+if param_name == "rg"
+    % rg
+    I = plot_voronoi(param, parts_new_cur, vertex_coord_cur, range, plotSettingsRg);
+    save_figure(I, param_name, experiment, frame, path)
+    %rg^2
+    I = plot_voronoi(param, parts_new_cur, vertex_coord_cur, range, plotSettingsAngle);
+    save_figure(I, param_name, experiment, frame, path)
+end
+
+end
+

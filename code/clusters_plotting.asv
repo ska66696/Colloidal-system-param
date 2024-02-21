@@ -1,0 +1,20 @@
+function clusters_plotting (cluster_cur, parts_new_cur, angle_cur, vertex_coord_cur, save_path, frame, experiment)
+    % Инициализация массива для хранения средних углов в кластерах
+    mean_angles = zeros(max(cluster_cur), 1);
+    
+    % Подсчет средних углов в каждом кластере
+    for i = 1:max(cluster_cur)
+        % Выбор углов только для частиц в текущем кластере
+        cluster_angles = angle_cur(cluster_cur == i);
+        % Вычисление среднего угла
+        mean_angles(i) = mean(cluster_angles);
+    end
+    
+    % Удаление границ кластеров
+    valid_indices = cluster_cur ~= -1;
+    cluster_cur = cluster_cur(valid_indices);
+    angle_cur = angle_cur(valid_indices);
+    angle_cur = angle_cur(valid_indices);
+
+end
+

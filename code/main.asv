@@ -1,0 +1,93 @@
+clear all
+close all
+
+%% Settings
+
+FindParam = 1;
+ImagePlot = 0;
+FindCluster = 0;
+PlotCluster = 0;
+
+save_path = "C:\Users\dania\Desktop\Work\Recristallisation\save\";
+path = "C:\Users\dania\Desktop\Work\Recristallisation\python code\data\";
+
+%=========================
+experiments = [652 653 654 655 656 ];
+start_frame = 1;
+finish_frame = 2;
+%=========================
+
+%Mask [psi6, angle, number, density, rg]
+mask_calc = [1, 1, 1, 0, 0];
+
+%% Find parametrs
+if FindParam
+    for iii = 1 : length(experiments)
+
+        load(strcat(path,num2str(experiments(iii)),".mat"),"parts");
+        %=======================
+        finish_frame = length(parts);
+        %=======================
+        [parts] = frame_cropping(parts,start_frame,finish_frame);
+        calc_voronoi_param(parts, save_path, experiments(iii), mask_calc);
+
+    end
+end
+%% Image plotting
+
+if ImagePlot
+
+    % Choose parametr ("psi6", "angle", "density", "rg", "number")
+    param_name = "angle";
+    %==================================
+
+    load_path = save_path;
+
+    for iii = 1 : length(experiments)
+
+        for frame = start_frame : finish_frame
+            param = load_parametrs(param_name, experiments(iii), frame, load_path);
+            parts_new_cur = load_parametrs("parts_new", experiments(iii), frame, load_path);
+            vertex_coord_cur = load_parametrs("vertex_coord", experiments(iii), frame, load_path);
+            image_plotting(param,param_name, parts_new_cur, vertex_coord_cur, experiments(iii), frame, save_path);
+            close all
+        end
+    end
+end
+
+
+%% Find clusters
+if FindCluster
+
+    load_path = save_path;
+
+    for iii = 1 : length(experiments)
+
+        for frame = start_frame : finish_frame
+            parts_new_cur = load_parametrs("parts_new", experiments(iii), frame, load_path);
+            angle_cur = load_parametrs("angle", experiments(iii), frame, load_path);
+            psi6_cur = load_parametrs("psi6", experiments(iii), frame, load_path);
+            neig_cur = load_parametrs("neig", experiments(iii), frame, load_path);
+            number_cur = load_parametrs("number", experiments(iii), frame, load_path);
+            cluster_cur = find_clusters(parts_new_cur, angle_cur, psi6_cur, neig_cur, number_cur, save_path, frame, experiments(iii));
+        end
+    end
+end
+
+%% Plot clusters
+if PlotCluster
+
+    load_path = save_path;
+
+    for iii = 1 : length(experiments)
+
+        for frame = start_frame : finish_frame
+            parts_new_cur = load_parametrs("parts_new", experiments(iii), frame, load_path);
+            angle_cur = load_parametrs("angle", experiments(iii), frame, load_path);
+            vertex_coord_cur = load_parametrs("vertex_coord", experiments(iii), frame, load_path);
+            cluster_cur = load_parametrs("clusters", experiments(iii), frame, load_path);
+            clusters_plotting (cluster_cur, parts_new_cur, angle_cur, vertex_coord_cur, save_path,  frame, experiments(iii));
+            close all
+        end
+    end
+end

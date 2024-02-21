@@ -1,0 +1,56 @@
+function cluster_cur = find_clusters(parts_new_cur, angle_cur, psi6_cur, neig_cur, number_cur, save_path, frame, experiment)
+
+cluster_cur = zeros(length(parts_new_cur), 1);
+cluster_cur(number_cur ~= 6) = -1;
+cluster_cur(cellfun(@(x) length(x) ~= 6, neig_cur)) = -1;
+
+cluster_idx = 1;
+visited = [];
+
+function dfs(idx)
+    visited = [visited idx];
+    valid_neighbors_count = 0;
+    
+    % Проверяем текущую частицу
+    valid_neighbors = [];
+    for i = 1:numel(neig_cur{idx})
+        neighbor_idx = neig_cur{idx}(i);
+        if psi6_cur(neighbor_idx) > 0.7 && abs(angle_cur(neighbor_idx) - angle_cur(idx)) < 2.3
+            valid_neighbors_count = valid_neighbors_count + 1;
+            valid_neighbors = [valid_neighbors neighbor_idx];
+        end
+    end
+    
+    % Проверяем соседей, удовлетворяющих условиям
+    if valid_neighbors_count >= 3
+        for neighbor_idx = valid_neighbors
+            if ~ismember(neighbor_idx, visited)
+                dfs(neighbor_idx);
+            end
+        end
+        cluster_cur(idx) = cluster_idx;
+    else
+        % Если у текущей частицы не хватает соседей, удовлетворяющих условиям,
+        % то помечаем ее как границу кластера или дислокацию
+        cluster_cur(idx) = -1;
+    end
+end
+
+for i = 1:length(parts_new_cur)
+    if cluster_cur(i) == 0
+        cluster_cur(i) = cluster_idx;
+        dfs(i);
+        cluster_idx = cluster_idx + 1;
+    end
+end
+
+% Пометить кластеры, у которых меньше 19 частиц, как границы
+unique_clusters = unique(cluster_cur);
+for i = 1:length(unique_clusters)
+    if unique_clusters(i) ~= -1 && sum(cluster_cur == unique_clusters(i)) < 19
+        cluster_cur(cluster_cur == unique_clusters(i)) = -1;
+    end
+end
+
+save_parametrs(cluster_cur, "clusters", experiment, frame, save_path);
+end
