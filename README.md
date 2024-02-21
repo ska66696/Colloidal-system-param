@@ -1,0 +1,1 @@
+Finds colloidal system parameters such as density, number and indices of neighbors, Voronoi cell orientation angle , Voronoi cell order parameter Psy6 and Voronoi cell coordinates. Identifies crystallites based on key parameters. Builds Voronoi cells colored by the selected parameter.
